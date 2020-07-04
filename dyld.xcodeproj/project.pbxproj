@@ -101,6 +101,7 @@
 		37D7DB011E96F3EB00D52CEA /* Tracing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37D7DAFE1E96F0ED00D52CEA /* Tracing.cpp */; };
 		37F597D52061ED0B00F9B6F9 /* dyld_usage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37F597D42061ECFF00F9B6F9 /* dyld_usage.cpp */; };
 		37F597D72061ED3200F9B6F9 /* libktrace.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 37F597D62061ED3200F9B6F9 /* libktrace.tbd */; };
+		495EE15124B10343004A5711 /* dsc_extractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F9CE30781208F1B50098B590 /* dsc_extractor.cpp */; };
 		C1436B2C203BE67D00028AF1 /* FileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F986920D1DC3EF6C00CBEDE6 /* FileUtils.cpp */; };
 		C172C9DD20252CB500159311 /* ClosureFileSystemPhysical.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1D268341FE0A52D009F115B /* ClosureFileSystemPhysical.cpp */; };
 		C17984D61FE9E9160057D002 /* mrm_shared_cache_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1D2682E1FE08918009F115B /* mrm_shared_cache_builder.cpp */; };
@@ -2260,6 +2261,7 @@
 				C1960ECF2090D9E5007E3E6B /* DyldSharedCache.cpp in Sources */,
 				C1960ED32090D9FF007E3E6B /* MachOFile.cpp in Sources */,
 				C1960ED22090D9FA007E3E6B /* MachOAnalyzer.cpp in Sources */,
+				495EE15124B10343004A5711 /* dsc_extractor.cpp in Sources */,
 				F99B8EA30FEC1C4200701838 /* dsc_iterator.cpp in Sources */,
 				C1960ED12090D9F6007E3E6B /* MachOLoaded.cpp in Sources */,
 				F99B8E630FEC11B400701838 /* dyld_shared_cache_util.cpp in Sources */,

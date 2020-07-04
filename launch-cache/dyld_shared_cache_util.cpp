@@ -48,13 +48,9 @@
 #include "DyldSharedCache.h"
 #include "Trie.hpp"
 
-#include "objc-shared-cache.h"
+#include "dsc_extractor.h"
 
-#if TARGET_OS_OSX
-#define DSC_BUNDLE_REL_PATH "../../lib/dsc_extractor.bundle"
-#else
-#define DSC_BUNDLE_REL_PATH "../lib/dsc_extractor.bundle"
-#endif
+#include "objc-shared-cache.h"
 
 // mmap() an shared cache file read/only but laid out like it would be at runtime
 static const DyldSharedCache* mapCacheFile(const char* path)
@@ -873,32 +869,7 @@ int main (int argc, const char* argv[]) {
         }
     }
     else if ( options.mode == modeExtract ) {
-        char pathBuffer[PATH_MAX];
-        uint32_t bufferSize = PATH_MAX;
-        if ( _NSGetExecutablePath(pathBuffer, &bufferSize) != 0 ) {
-            fprintf(stderr, "Error: could not get path of program\n");
-            return 1;
-        }
-        char* last = strrchr(pathBuffer, '/');
-        // The bundle is at a different location on device.  Its /usr/lib/dsc_extractor.bundle in the SDK
-        // but /usr/local/lib/dsc_extractor.bundle on device.
-        strcpy(last+1, "dsc_extractor.bundle");
-        void* handle = dlopen(pathBuffer, RTLD_LAZY);
-        if ( handle == NULL ) {
-            fprintf(stderr, "Error: dsc_extractor.bundle could not be loaded at %s\n", pathBuffer);
-            return 1;
-        }
-
-        typedef int (*extractor_proc)(const char* shared_cache_file_path, const char* extraction_root_path, const char *library,
-                                      void (^progress)(unsigned current, unsigned total));
-
-        extractor_proc proc = (extractor_proc)dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
-        if ( proc == NULL ) {
-            fprintf(stderr, "Error: dsc_extractor.bundle did not have dyld_shared_cache_extract_dylibs_progress symbol\n");
-            return 1;
-        }
-
-        int result = (*proc)(sharedCachePath, options.extractionDir, options.singleLibrary, ^(unsigned c, unsigned total) {
+        int result = dyld_shared_cache_extract_dylibs_progress(sharedCachePath, options.extractionDir, options.singleLibrary, ^(unsigned c, unsigned total) {
             printf("Extracted %d/%d\n", c, total);
         } );
         return result;
