@@ -780,7 +780,7 @@ static int sharedCacheIsValid(const void* mapped_cache, uint64_t size) {
     return 0;
 }
 
-int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path, const char* extraction_root_path,
+int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path, const char* extraction_root_path, const char *library,
                                               progress_block progress)
 {
     struct stat statbuf;
@@ -859,6 +859,8 @@ int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path
         munmap(mapped_cache, (size_t)statbuf.st_size);
         return result;
     }
+    
+    for (auto i = map.begin(); i != map.end(); i = library && strcmp(i->first, library) ? map.erase(i) : std::next(i));
 
     // for each dylib instantiate a dylib file
     SharedCacheExtractor extractor(map, extraction_root_path, dylib_create_func, mapped_cache, progress);
@@ -872,7 +874,7 @@ int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path
 
 int dyld_shared_cache_extract_dylibs(const char* shared_cache_file_path, const char* extraction_root_path)
 {
-    return dyld_shared_cache_extract_dylibs_progress(shared_cache_file_path, extraction_root_path,
+    return dyld_shared_cache_extract_dylibs_progress(shared_cache_file_path, extraction_root_path, nullptr,
                                                      ^(unsigned , unsigned) {} );
 }
 

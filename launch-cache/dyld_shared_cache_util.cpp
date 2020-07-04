@@ -124,6 +124,7 @@ struct Options {
     Mode            mode;
     const char*     dependentsOfPath;
     const char*     extractionDir;
+    const char*     singleLibrary;
     bool            printUUIDs;
     bool            printVMAddrs;
     bool            printDylibVersions;
@@ -132,12 +133,12 @@ struct Options {
 
 
 void usage() {
-    fprintf(stderr, "Usage: dyld_shared_cache_util -list [ -uuid ] [-vmaddr] | -dependents <dylib-path> [ -versions ] | -linkedit | -map | -slide_info | -verbose_slide_info | -info | -extract <dylib-dir>  [ shared-cache-file ] \n");
+    fprintf(stderr, "Usage: dyld_shared_cache_util -list [ -uuid ] [-vmaddr] | -dependents <dylib-path> [ -versions ] | -linkedit | -map | -slide_info | -verbose_slide_info | -info | -extract <dylib-dir> [ shared-cache-file ] | -extract_single <library> <dylib-dir> [shared-cache-file] \n");
 }
 
 static void checkMode(Mode mode) {
     if ( mode != modeNone ) {
-        fprintf(stderr, "Error: select one of: -list, -dependents, -info, -slide_info, -verbose_slide_info, -linkedit, -map, -extract, or -size\n");
+        fprintf(stderr, "Error: select one of: -list, -dependents, -info, -slide_info, -verbose_slide_info, -linkedit, -map, -extract, -extract_single, or -size\n");
         usage();
         exit(1);
     }
@@ -163,6 +164,7 @@ int main (int argc, const char* argv[]) {
     options.printInodes = false;
     options.dependentsOfPath = NULL;
     options.extractionDir = NULL;
+    options.singleLibrary = NULL;
 
     bool printStrings = false;
     bool printExports = false;
@@ -257,6 +259,17 @@ int main (int argc, const char* argv[]) {
                     usage();
                     exit(1);
                 }
+            }
+            else if (strcmp(opt, "-extract_single") == 0) {
+                checkMode(options.mode);
+                options.mode = modeExtract;
+                if ( i >= argc - 2 ) {
+                    fprintf(stderr, "Error: option -extract_single requires a library and directory\n");
+                    usage();
+                    exit(1);
+                }
+                options.singleLibrary = argv[++i];
+                options.extractionDir = argv[++i];
             }
             else if (strcmp(opt, "-uuid") == 0) {
                 options.printUUIDs = true;
@@ -876,7 +889,7 @@ int main (int argc, const char* argv[]) {
             return 1;
         }
 
-        typedef int (*extractor_proc)(const char* shared_cache_file_path, const char* extraction_root_path,
+        typedef int (*extractor_proc)(const char* shared_cache_file_path, const char* extraction_root_path, const char *library,
                                       void (^progress)(unsigned current, unsigned total));
 
         extractor_proc proc = (extractor_proc)dlsym(handle, "dyld_shared_cache_extract_dylibs_progress");
