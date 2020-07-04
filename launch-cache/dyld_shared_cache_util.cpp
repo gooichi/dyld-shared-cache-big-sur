@@ -885,7 +885,9 @@ int main (int argc, const char* argv[]) {
             return 1;
         }
 
-        int result = (*proc)(sharedCachePath, options.extractionDir, ^(unsigned c, unsigned total) { } );
+        int result = (*proc)(sharedCachePath, options.extractionDir, options.singleLibrary, ^(unsigned c, unsigned total) {
+            printf("Extracted %d/%d\n", c, total);
+        } );
         return result;
     }
     else {
