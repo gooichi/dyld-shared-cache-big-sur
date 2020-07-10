@@ -120,7 +120,7 @@ struct Options {
     Mode            mode;
     const char*     dependentsOfPath;
     const char*     extractionDir;
-    const char*     singleLibrary;
+    const char*     libraryPattern;
     bool            printUUIDs;
     bool            printVMAddrs;
     bool            printDylibVersions;
@@ -129,12 +129,12 @@ struct Options {
 
 
 void usage() {
-    fprintf(stderr, "Usage: dyld_shared_cache_util -list [ -uuid ] [-vmaddr] | -dependents <dylib-path> [ -versions ] | -linkedit | -map | -slide_info | -verbose_slide_info | -info | -extract <dylib-dir> [ shared-cache-file ] | -extract_single <library> <dylib-dir> [shared-cache-file] \n");
+    fprintf(stderr, "Usage: dyld_shared_cache_util -list [ -uuid ] [-vmaddr] | -dependents <dylib-path> [ -versions ] | -linkedit | -map | -slide_info | -verbose_slide_info | -info | -extract <dylib-dir> [ shared-cache-file ] | -extract_matching <pattern> <dylib-dir> [shared-cache-file] \n");
 }
 
 static void checkMode(Mode mode) {
     if ( mode != modeNone ) {
-        fprintf(stderr, "Error: select one of: -list, -dependents, -info, -slide_info, -verbose_slide_info, -linkedit, -map, -extract, -extract_single, or -size\n");
+        fprintf(stderr, "Error: select one of: -list, -dependents, -info, -slide_info, -verbose_slide_info, -linkedit, -map, -extract, -extract_matching, or -size\n");
         usage();
         exit(1);
     }
@@ -160,7 +160,7 @@ int main (int argc, const char* argv[]) {
     options.printInodes = false;
     options.dependentsOfPath = NULL;
     options.extractionDir = NULL;
-    options.singleLibrary = NULL;
+    options.libraryPattern = NULL;
 
     bool printStrings = false;
     bool printExports = false;
@@ -256,15 +256,15 @@ int main (int argc, const char* argv[]) {
                     exit(1);
                 }
             }
-            else if (strcmp(opt, "-extract_single") == 0) {
+            else if (strcmp(opt, "-extract_matching") == 0) {
                 checkMode(options.mode);
                 options.mode = modeExtract;
                 if ( i >= argc - 2 ) {
-                    fprintf(stderr, "Error: option -extract_single requires a library and directory\n");
+                    fprintf(stderr, "Error: option -extract_matching requires a pattern and directory\n");
                     usage();
                     exit(1);
                 }
-                options.singleLibrary = argv[++i];
+                options.libraryPattern = argv[++i];
                 options.extractionDir = argv[++i];
             }
             else if (strcmp(opt, "-uuid") == 0) {
@@ -869,7 +869,7 @@ int main (int argc, const char* argv[]) {
         }
     }
     else if ( options.mode == modeExtract ) {
-        int result = dyld_shared_cache_extract_dylibs_progress(sharedCachePath, options.extractionDir, options.singleLibrary, ^(unsigned c, unsigned total) {
+        int result = dyld_shared_cache_extract_dylibs_progress(sharedCachePath, options.extractionDir, options.libraryPattern, ^(unsigned c, unsigned total) {
             printf("Extracted %d/%d\n", c, total);
         } );
         return result;

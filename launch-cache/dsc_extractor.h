@@ -32,7 +32,7 @@ extern "C" {
 #endif 
 
 extern int dyld_shared_cache_extract_dylibs(const char* shared_cache_file_path, const char* extraction_root_path);
-extern int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path, const char* extraction_root_path, const char* library,
+extern int dyld_shared_cache_extract_dylibs_progress(const char* shared_cache_file_path, const char* extraction_root_path, const char* pattern,
 													void (^progress)(unsigned current, unsigned total));
 
 #ifdef __cplusplus
